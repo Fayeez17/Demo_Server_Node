@@ -26,7 +26,7 @@ const server = http.createServer((req, res) => {
     "Content-Type, Authorization"
   );
 
-  // OPTIONS /users
+  // OPTIONS
   if (method === "OPTIONS" && path === "/users") {
     res.writeHead(200);
     res.end(
@@ -39,14 +39,14 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // GET /users
+  // GET
   if (method === "GET" && path === "/users") {
     res.writeHead(200);
     res.end(JSON.stringify(users));
     return;
   }
 
-  // GET /users/:id
+  // GET
   if (method === "GET" && path.startsWith("/users/")) {
     const userId = Number(path.split("/")[2]);
     const user = users.find((u) => u.id === userId);
@@ -62,7 +62,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // POST /users
+  // POST 
   if (method === "POST" && path === "/users") {
     let body = "";
 
@@ -92,7 +92,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // PUT /users/:id
+  // PUT 
   if (method === "PUT" && path.startsWith("/users/")) {
     const userId = Number(path.split("/")[2]);
     const userIndex = users.findIndex((u) => u.id === userId);
@@ -129,7 +129,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // PATCH /users/:id
+  // PATCH
   if (method === "PATCH" && path.startsWith("/users/")) {
     const userId = Number(path.split("/")[2]);
     const user = users.find((u) => u.id === userId);
@@ -165,7 +165,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // DELETE /users/:id
+  // DELETE 
   if (method === "DELETE" && path.startsWith("/users/")) {
     const userId = Number(path.split("/")[2]);
     const userIndex = users.findIndex((u) => u.id === userId);
