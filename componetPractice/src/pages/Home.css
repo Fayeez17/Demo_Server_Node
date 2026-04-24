@@ -1,0 +1,118 @@
+.hero {
+    min-height: 650px;
+    background:
+      linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 10, 25, 0.9)),
+      url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    padding: 120px 72px 60px;
+  }
+  
+  .hero-content {
+    max-width: 620px;
+    color: white;
+  }
+  
+  .hero-content h1 {
+    font-size: 52px;
+    line-height: 1.25;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  
+  .hero-content p {
+    font-size: 18px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+  
+  .hero-content {
+    text-align: left;
+    align-items: flex-start;
+  }
+  
+  .hero-content button {
+    background: #83d000;
+    color: white;
+    border: none;
+    padding: 16px 30px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  
+    display: block;
+    margin-left: 0;
+    margin-right: auto;
+  }
+  
+  .content-section {
+    padding: 70px 72px;
+    background: white;
+  }
+  
+  .content-section h2 {
+    font-size: 36px;
+    color: #061936;
+    margin-bottom: 36px;
+    text-align: left;
+  }
+  
+  .stats-card {
+    background: #082044;
+    border-radius: 24px;
+    padding: 48px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    color: white;
+    text-align: center;
+  }
+  
+  .stats-card div {
+    border-right: 1px solid rgba(255, 255, 255, 0.35);
+  }
+  
+  .stats-card div:last-child {
+    border-right: none;
+  }
+  
+  .stats-card h3 {
+    font-size: 40px;
+    margin-bottom: 8px;
+  }
+  
+  .stats-card p {
+    font-size: 16px;
+  }
+  
+  @media (max-width: 900px) {
+    .hero {
+      padding: 120px 24px 60px;
+    }
+  
+    .hero-content h1 {
+      font-size: 38px;
+    }
+  
+    .content-section {
+      padding: 50px 24px;
+    }
+  
+    .stats-card {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  
+    .stats-card div {
+      border-right: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      padding-bottom: 24px;
+    }
+  
+    .stats-card div:last-child {
+      border-bottom: none;
+    }
+  }
