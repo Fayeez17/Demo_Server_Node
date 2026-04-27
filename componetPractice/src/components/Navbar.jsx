@@ -5,6 +5,7 @@ import "./Navbar.css";
 
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,9 +19,13 @@ function Navbar() {
     };
   }, []);
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
-    <nav className={`navbar ${isScrolled ? "navbar-scrolled" : ""}`}>
-      <Link to="/" className="navbar-logo">
+    <nav className={`navbar ${isScrolled || isMenuOpen ? "navbar-scrolled" : ""}`}>
+      <Link to="/" className="navbar-logo" onClick={closeMenu}>
         <img src={logo} alt="Messina Madrid Global Logo" className="logo-image" />
         <span>Messina Madrid Global</span>
       </Link>
@@ -40,9 +45,37 @@ function Navbar() {
         </li>
       </ul>
 
-      <Link to="/contact" className="navbar-button">
-        Talk To An Expert <span>→</span>
-      </Link>
+      <div className="navbar-actions">
+        <Link to="/contact" className="navbar-button" onClick={closeMenu}>
+          Talk To An Expert <span>→</span>
+        </Link>
+
+        <button
+          type="button"
+          className="menu-toggle"
+          onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        >
+          <span className={isMenuOpen ? "line line-one open" : "line line-one"}></span>
+          <span className={isMenuOpen ? "line line-two open" : "line line-two"}></span>
+          <span className={isMenuOpen ? "line line-three open" : "line line-three"}></span>
+        </button>
+      </div>
+
+      <div className={isMenuOpen ? "mobile-menu mobile-menu-open" : "mobile-menu"}>
+        <Link to="/" onClick={closeMenu}>
+          Home
+        </Link>
+        <Link to="/countries" onClick={closeMenu}>
+          Countries
+        </Link>
+        <Link to="/consultation" onClick={closeMenu}>
+          Consultation
+        </Link>
+        <Link to="/support" onClick={closeMenu}>
+          Support
+        </Link>
+      </div>
     </nav>
   );
 }

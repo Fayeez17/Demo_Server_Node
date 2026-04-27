@@ -1,11 +1,9 @@
-import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./Home.css";
 
 function Home() {
   return (
     <>
-      <Navbar />
-
       <section className="hero">
         <div className="hero-content">
           <h1>
@@ -48,6 +46,7 @@ function Home() {
           </div>
         </div>
       </section>
+      <Footer />
     </>
   );
 }
