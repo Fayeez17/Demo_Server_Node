@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -13,6 +13,42 @@ function RegisterForm() {
 
   const [errors, setErrors] = useState({});
   const [submittedData, setSubmittedData] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("registrationData");
+  
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+  
+      setFormData({
+        fullName: parsedData.fullName || "",
+        email: parsedData.email || "",
+        password: "",
+        gender: parsedData.gender || "",
+        country: parsedData.country || "",
+        dateOfBirth: parsedData.dateOfBirth || "",
+        hobbies: parsedData.hobbies || [],
+      });
+  
+      setSubmittedData(parsedData);
+    }
+  }, []);
+
+  const hashPassword = async (password) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+    const hashedPassword = hashArray
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+
+    return hashedPassword;
+  };
 
   const handleChange = (event) => {
     const { name, value, type, files, checked } = event.target;
@@ -73,7 +109,7 @@ function RegisterForm() {
     return newErrors;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const validationErrors = validateForm();
@@ -84,10 +120,19 @@ function RegisterForm() {
       return;
     }
 
-    setErrors({});
-    setSubmittedData(formData);
+    const hashedPassword = await hashPassword(formData.password);
 
-    console.log("Form submitted successfully:", formData);
+    const finalData = {
+      ...formData,
+      password: hashedPassword,
+    };
+
+    localStorage.setItem("registrationData", JSON.stringify(finalData));
+
+    setErrors({});
+    setSubmittedData(finalData);
+
+    console.log("Stored data:", finalData);
   };
 
   return (
@@ -142,20 +187,77 @@ function RegisterForm() {
           {/* Password Input */}
           <div>
             <label className="mb-2 block font-medium text-slate-700">
-              Password <span className="text-red-500">*</span>
+                Password <span className="text-red-500">*</span>
             </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter password"
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-            />
+
+            <div className="flex overflow-hidden rounded-xl border border-slate-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
+                <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+                className="w-full px-4 py-3 outline-none"
+                />
+
+                <button
+                type="button"
+                onClick={() => setShowPassword((prevValue) => !prevValue)}
+                className="flex items-center justify-center border-l border-slate-300 px-4 hover:bg-slate-100"
+                >
+                {showPassword ? (
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.8"
+                    stroke="currentColor"
+                    className="h-5 w-5 text-slate-700"
+                    >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 3l18 18"
+                    />
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M10.58 10.58a2 2 0 102.83 2.83"
+                    />
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9.88 5.09A10.94 10.94 0 0112 4.91c5.05 0 9.27 3.11 10.5 7.5a11.05 11.05 0 01-4.04 5.94M6.61 6.61A11.05 11.05 0 001.5 12.41a11.05 11.05 0 004.65 5.6"
+                    />
+                    </svg>
+                ) : (
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.8"
+                    stroke="currentColor"
+                    className="h-5 w-5 text-slate-700"
+                    >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
+                    />
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z"
+                    />
+                    </svg>
+                )}
+                </button>
+            </div>
+
             {errors.password && (
-              <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
             )}
-          </div>
+            </div>
 
           {/* Radio Buttons */}
           <div>
