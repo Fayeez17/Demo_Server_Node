@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
-const db = require("../database");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -80,105 +80,67 @@ router.post("/register", registerValidationRules, async (req, res) => {
   } = req.body;
 
   try {
+    const existingUser = await User.findOne({
+      email: email.toLowerCase(),
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        message: "Email already exists",
+        errors: {
+          email: "This email is already registered",
+        },
+      });
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const createdAt = new Date().toISOString();
+    const user = await User.create({
+      fullName,
+      email,
+      passwordHash,
+      gender,
+      country,
+      dateOfBirth,
+      hobbies,
+    });
 
-    const sql = `
-      INSERT INTO users (
-        fullName,
-        email,
-        passwordHash,
-        gender,
-        country,
-        dateOfBirth,
-        hobbies,
-        createdAt
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    db.run(
-      sql,
-      [
-        fullName,
-        email,
-        passwordHash,
-        gender,
-        country,
-        dateOfBirth,
-        JSON.stringify(hobbies),
-        createdAt,
-      ],
-      function (error) {
-        if (error) {
-          if (error.message.includes("UNIQUE constraint failed")) {
-            return res.status(409).json({
-              message: "Email already exists",
-              errors: {
-                email: "This email is already registered",
-              },
-            });
-          }
-
-          return res.status(500).json({
-            message: "Failed to save user",
-          });
-        }
-
-        return res.status(201).json({
-          message: "User registered successfully",
-          user: {
-            id: this.lastID,
-            fullName,
-            email,
-            gender,
-            country,
-            dateOfBirth,
-            hobbies,
-            createdAt,
-          },
-        });
-      }
-    );
+    return res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        gender: user.gender,
+        country: user.country,
+        dateOfBirth: user.dateOfBirth,
+        hobbies: user.hobbies,
+        createdAt: user.createdAt,
+      },
+    });
   } catch (error) {
+    console.error("Register error:", error.message);
+
     return res.status(500).json({
       message: "Server error",
     });
   }
 });
 
-router.get("/users", (req, res) => {
-  db.all(
-    `
-      SELECT 
-        id,
-        fullName,
-        email,
-        gender,
-        country,
-        dateOfBirth,
-        hobbies,
-        createdAt
-      FROM users
-      ORDER BY id DESC
-    `,
-    [],
-    (error, rows) => {
-      if (error) {
-        return res.status(500).json({
-          message: "Failed to fetch users",
-        });
-      }
+router.get("/users", async (req, res) => {
+  try {
+    const users = await User.find()
+      .select("-passwordHash -__v")
+      .sort({ createdAt: -1 });
 
-      const users = rows.map((user) => ({
-        ...user,
-        hobbies: JSON.parse(user.hobbies),
-      }));
+    return res.json(users);
+  } catch (error) {
+    console.error("Fetch users error:", error.message);
 
-      return res.json(users);
-    }
-  );
+    return res.status(500).json({
+      message: "Failed to fetch users",
+    });
+  }
 });
 
 module.exports = router;
