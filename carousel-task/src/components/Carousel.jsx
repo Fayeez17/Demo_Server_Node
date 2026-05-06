@@ -22,11 +22,7 @@ function Carousel({ slides }) {
       return previousIndex + 1;
     });
   };
-
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
-
+  
   return (
     <div className="mx-auto w-full max-w-3xl">
       <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl">
@@ -73,7 +69,7 @@ function Carousel({ slides }) {
         {slides.map((slide, index) => (
           <button
             key={slide.id}
-            onClick={() => goToSlide(index)}
+            onClick={() => setCurrentIndex(index)}
             className={`h-3 rounded-full transition-all duration-300 ${
               currentIndex === index
                 ? "w-8 bg-blue-600"
