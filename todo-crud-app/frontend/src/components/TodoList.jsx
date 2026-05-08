@@ -1,33 +1,44 @@
-function TodoList({ todos, loading, onEdit, onDelete, onToggleComplete }) {
-    return (
-      <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <div className="mb-5">
-          <h2 className="text-2xl font-bold text-slate-900">
-            Todo List
-          </h2>
-  
-          <p className="text-sm text-slate-500">
-            Manage your saved tasks
-          </p>
+function TodoList({
+  todos = [],
+  loading,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
+  onEdit,
+  onDelete,
+  onToggleComplete
+}) {
+  return (
+    <div className="flex h-[750px] flex-col rounded-3xl bg-white p-6 shadow-sm">
+      <div className="mb-5">
+        <h2 className="text-2xl font-bold text-slate-900">
+          Todo List
+        </h2>
+
+        <p className="text-sm text-slate-500">
+          Manage your saved tasks
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="rounded-2xl bg-slate-50 p-8 text-center text-slate-500">
+          Loading todos...
         </div>
-  
-        {/* Show loading while fetching todos */}
-        {loading ? (
-          <div className="rounded-2xl bg-slate-50 p-8 text-center text-slate-500">
-            Loading todos...
-          </div>
-        ) : todos.length === 0 ? (
-          <div className="rounded-2xl bg-slate-50 p-8 text-center">
+      ) : todos.length === 0 ? (
+        <div className="flex flex-1 items-center justify-center rounded-2xl bg-slate-50 p-8 text-center">
+          <div>
             <h3 className="text-lg font-bold text-slate-800">
               No todos found
             </h3>
-  
+
             <p className="mt-2 text-slate-500">
               Create your first todo from the form.
             </p>
           </div>
-        ) : (
-          <div className="space-y-4">
+        </div>
+      ) : (
+        <>
+          <div className="flex-1 space-y-4 overflow-y-auto pr-1">
             {todos.map((todo) => (
               <div
                 key={todo._id}
@@ -38,14 +49,13 @@ function TodoList({ todos, loading, onEdit, onDelete, onToggleComplete }) {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  {/* Checkbox toggles completed true/false */}
                   <input
                     type="checkbox"
                     checked={todo.completed}
                     onChange={() => onToggleComplete(todo)}
                     className="mt-1 h-5 w-5 cursor-pointer rounded border-slate-300 accent-emerald-600"
                   />
-  
+
                   <div className="flex-1">
                     <h3
                       className={`text-lg font-bold ${
@@ -56,20 +66,19 @@ function TodoList({ todos, loading, onEdit, onDelete, onToggleComplete }) {
                     >
                       {todo.title}
                     </h3>
-  
-                    {/* Show description only when it exists */}
+
                     {todo.description && (
                       <p className="mt-2 text-sm leading-6 text-slate-600">
                         {todo.description}
                       </p>
                     )}
-  
+
                     <p className="mt-3 text-xs text-slate-400">
                       Created: {new Date(todo.createdAt).toLocaleString()}
                     </p>
                   </div>
                 </div>
-  
+
                 <div className="mt-5 flex gap-3">
                   <button
                     onClick={() => onEdit(todo)}
@@ -77,7 +86,7 @@ function TodoList({ todos, loading, onEdit, onDelete, onToggleComplete }) {
                   >
                     Edit
                   </button>
-  
+
                   <button
                     onClick={() => onDelete(todo._id)}
                     className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
@@ -88,9 +97,48 @@ function TodoList({ todos, loading, onEdit, onDelete, onToggleComplete }) {
               </div>
             ))}
           </div>
-        )}
-      </div>
-    );
-  }
-  
-  export default TodoList;
+
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center gap-2 pt-4">
+              <button
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Previous
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => {
+                const pageNumber = index + 1;
+
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => onPageChange(pageNumber)}
+                    className={`rounded-xl px-4 py-2 text-sm font-bold ${
+                      currentPage === pageNumber
+                        ? "bg-blue-600 text-white"
+                        : "border border-slate-200 text-slate-700"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+export default TodoList;

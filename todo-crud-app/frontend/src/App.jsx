@@ -15,6 +15,16 @@ function App() {
   const [message, setMessage] = useState("");
 
   // Gets todos 
+  const [currentPage, setCurrentPage] = useState(1);
+  const todosPerPage = 3;
+
+  const totalPages = Math.ceil(todos.length / todosPerPage);
+
+  const startIndex = (currentPage - 1) * todosPerPage;
+  const endIndex = startIndex + todosPerPage;
+
+  const currentTodos = todos.slice(startIndex, endIndex);
+
   const fetchTodos = async () => {
     try {
       setLoading(true);
@@ -34,7 +44,12 @@ function App() {
     fetchTodos();
   }, []);
 
-  // Updates formData 
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [todos.length, totalPages, currentPage]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -44,7 +59,6 @@ function App() {
     }));
   };
 
-  // Clears the form 
   const resetForm = () => {
     setFormData({
       title: "",
@@ -54,7 +68,6 @@ function App() {
     setEditingId(null);
   };
 
-  // Handles both adding and updating todo
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -87,13 +100,14 @@ function App() {
       );
 
       resetForm();
-      fetchTodos();
+      await fetchTodos();
+
+      setCurrentPage(1);
     } catch (error) {
       setMessage("Failed to save todo");
     }
   };
 
-  // Changes form to edit mode
   const handleEdit = (todo) => {
     setEditingId(todo._id);
 
@@ -105,7 +119,6 @@ function App() {
     setMessage("");
   };
 
-  // Deletes selected todo 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this todo?"
@@ -128,13 +141,12 @@ function App() {
       }
 
       setMessage("Todo deleted successfully");
-      fetchTodos();
+      await fetchTodos();
     } catch (error) {
       setMessage("Failed to delete todo");
     }
   };
 
-  // Changes completed false to true
   const handleToggleComplete = async (todo) => {
     try {
       const response = await fetch(`${API_URL}/${todo._id}`, {
@@ -154,7 +166,7 @@ function App() {
         return;
       }
 
-      fetchTodos();
+      await fetchTodos();
     } catch (error) {
       setMessage("Failed to update todo status");
     }
@@ -167,9 +179,13 @@ function App() {
           <h1 className="text-4xl font-bold text-slate-900">
             To do list
           </h1>
+
+          <p className="mt-2 text-slate-500">
+            Total todos: {todos.length}
+          </p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[380px_1fr]">
+        <div className="grid items-start gap-8 lg:grid-cols-[380px_1fr]">
           <TodoForm
             formData={formData}
             editingId={editingId}
@@ -180,8 +196,11 @@ function App() {
           />
 
           <TodoList
-            todos={todos}
+            todos={currentTodos}
             loading={loading}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
             onEdit={handleEdit}
             onDelete={handleDelete}
             onToggleComplete={handleToggleComplete}
